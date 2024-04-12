@@ -5,6 +5,7 @@ dotenv.config(); // Load environment variables
 
 const app = express();
 app.use(cors());
+
 const port = process.env.PORT || 3000;
 
 
@@ -18,3 +19,10 @@ app.listen(port, () => {
 app.get("/", async (req, res) => {
     res.render("index.html");
   });
+  
+
+const seederRouter = require("./routes/seed.route");
+app.use("/seed", seederRouter);
+
+const authRouter = require("./routes/authentication.route");
+app.use("/auth", authRouter);
