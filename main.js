@@ -26,3 +26,6 @@ app.use("/seed", seederRouter);
 
 const authRouter = require("./routes/authentication.route");
 app.use("/auth", authRouter);
+
+const userRouter = require("./routes/user.route");
+app.use("/user", userRouter);
