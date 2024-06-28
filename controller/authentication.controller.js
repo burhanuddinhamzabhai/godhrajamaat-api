@@ -41,9 +41,10 @@ async function login(req,res){
             });
 
         //return response with token and user info
-        return res.send({user:user,token:token});
+        return res.send({user:{name:user.name,itsId:user.itsId, isAdmin: user.isAdmin}, token: token});
+
     } catch (error) {
-        return res.send(500).send('Error logging in');
+        return res.status(500).send('Error logging in');
     } finally {
         await prisma.$disconnect();
     }
