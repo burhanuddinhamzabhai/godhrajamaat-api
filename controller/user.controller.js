@@ -40,6 +40,17 @@ async function createUser(req,res){
 
 }
 
+async function getAllUsers(req,res){
+    try{
+        const users = await prisma.users.findMany();
+        return res.status(200).send(users);
+    }
+    catch(e){
+        console.log(e);
+        return res.status(500).send({ message: "Internal server error: " + e.message });
+    }
+}
+
 async function deleteUser(req,res){
     const { id } = req.params;
     try{
@@ -91,6 +102,7 @@ async function deleteUsers(req,res){
 
 module.exports = {
     createUser,
+    getAllUsers,
     deleteUser,
     deleteUsers
 }

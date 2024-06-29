@@ -20,9 +20,19 @@ model Users {
   isAdmin            Boolean  @default(false)
 }
 
-model Event {
+model Miqaat {
   sysid       String   @id @default(uuid())
   name        String
   url         String
   createdDate DateTime @default(now())
+  closed      Boolean  @default(false)
+}
+
+model ActiveMiqaatUsers {
+  sysid      String   @id @default(uuid())
+  miqaatId   String
+  itsId      String
+  name       String
+  loggedInAt DateTime @updatedAt
+  active     Boolean  @default(false)
 }

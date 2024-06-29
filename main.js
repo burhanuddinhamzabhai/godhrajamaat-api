@@ -30,5 +30,5 @@ app.use("/auth", authRouter);
 const userRouter = require("./routes/user.route");
 app.use("/user", userRouter);
 
-const eventRouter = require("./routes/event.route");
-app.use("/event", eventRouter);
+const miqaatRouter = require("./routes/miqaat.route");
+app.use("/miqaat", miqaatRouter);

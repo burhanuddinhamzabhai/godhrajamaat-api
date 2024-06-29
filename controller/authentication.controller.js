@@ -40,6 +40,37 @@ async function login(req,res){
             expiresIn: '3h',
             });
 
+            const lastMiqaat = await prisma.miqaat.findFirst({
+                where: {
+                    closed: false
+                },
+                orderBy: {
+                    createdDate: 'desc'
+                }
+            });
+            console.log(lastMiqaat)
+
+            const isUserActive = await prisma.activeMiqaatUsers.findFirst({
+                where:{
+                    itsId: user.itsId,
+                    miqaatId: lastMiqaat.sysid,
+                    active:true
+                }
+            });
+            
+            if(isUserActive){
+                return res.status(400).send('User already active');
+            }
+
+            const addToActiveMiqaat = await prisma.activeMiqaatUsers.create({
+                data:{
+                    miqaatId: lastMiqaat.sysid,
+                    itsId: user.itsId,
+                    name: user.name,
+                    active:true
+                }
+            })
+            console.log(addToActiveMiqaat)
         //return response with token and user info
         return res.send({user:{name:user.name,itsId:user.itsId, isAdmin: user.isAdmin}, token: token});
 
@@ -50,6 +81,51 @@ async function login(req,res){
     }
 }
 
+async function logout(req,res){
+    try {
+        const { itsId } = req.body;
+        const lastMiqaat = await prisma.miqaat.findFirst({
+            where: {
+                closed: false
+            },
+            orderBy: {
+                createdDate: 'desc'
+            }
+        });
+
+        console.log(lastMiqaat,itsId)
+
+        console.log(await prisma.activeMiqaatUsers.findFirst({
+            where:{
+                itsId: itsId,
+                miqaatId: lastMiqaat.sysid
+            }
+        
+        }))
+
+        const removeFromActiveMiqaat = await prisma.activeMiqaatUsers.updateMany({
+            data:{
+                active:false
+            },
+            where: {
+                miqaatId: lastMiqaat.sysid,
+                itsId: itsId
+            }
+        })
+
+        console.log(removeFromActiveMiqaat)
+
+        return res.status(200).send({message:'User logged out'});
+
+    } catch (error) {
+        return res.status(500).send('Error logging out');
+    } finally {
+        await prisma.$disconnect();
+    }
+
+}
+
 module.exports = {
-    login
+    login,
+    logout
 }

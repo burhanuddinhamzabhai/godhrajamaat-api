@@ -2,7 +2,7 @@ const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 const bcrypt = require("bcrypt");
 
-async function seedUsers(){
+async function seedInit(){
 
     const users =[{
         name:'Burhanuddin Mulla Hamzabhai',
@@ -12,12 +12,25 @@ async function seedUsers(){
         isAdmin: true
     }];
 
+    const miqaat = [{
+        name: 'DEFAULT',
+        url: 'abc',
+        closed: false
+    }]
+
 
     try{
         const createUsers = await prisma.users.createMany({
             data: users,
         });
         console.log(createUsers);
+
+        const createMiqaat = await prisma.miqaat.createMany({
+            data: miqaat,
+        });
+
+        console.log(createMiqaat)
+
     }
     catch(e){
         console.log(e);
@@ -26,5 +39,5 @@ async function seedUsers(){
 }
 
 module.exports = {
-    seedUsers
+    seedInit
 }
