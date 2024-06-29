@@ -2,6 +2,8 @@ const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 const bcrypt = require("bcrypt");
 
+const seed = require("./seed.controller");
+
 async function createUser(req,res){
     const { itsId, name } = req.body;
     const user =[{
@@ -73,7 +75,22 @@ async function deleteUser(req,res){
     }
 }
 
+async function deleteUsers(req,res){
+    try{
+        await prisma.users.deleteMany({});
+        await seed.seedUsers();
+        return res.status(200).send({ message: "Users deleted" });
+
+    }
+    catch(e){
+        console.log(e);
+        return res.status(500).send({ message: "Internal server error: " + e.message });
+    }
+
+}
+
 module.exports = {
     createUser,
-    deleteUser
+    deleteUser,
+    deleteUsers
 }

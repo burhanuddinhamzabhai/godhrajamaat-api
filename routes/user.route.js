@@ -23,4 +23,13 @@ app.delete("/delete/:id", async (req, res) => {
   }
 });
 
+app.delete("/deleteAll", async (req, res) => {
+  try{
+    await controller.deleteUsers(req,res);
+  }catch(err){
+    console.log(err);
+    return res.status(500).send({ message: "Internal server error" });
+  }
+});
+
 module.exports = app;

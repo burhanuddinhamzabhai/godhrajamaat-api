@@ -1,6 +1,5 @@
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
-const bcrypt = require("bcrypt");
 
 async function createEvent(req,res){
     const { name,url} = req.body;
@@ -24,6 +23,21 @@ async function createEvent(req,res){
 
 }
 
+async function getLastEvent(req,res){
+    try{
+        const event = await prisma.event.findFirst({
+            orderBy: {
+                createdDate: 'desc'
+            }
+        });
+        return res.status(201).send(event);
+    }
+    catch(e){
+        console.log(e);
+        return res.status(500).send({ message: "Internal server error: " + e.message });
+    }
+}
+
 async function deleteEvents(req,res){
     try{
         await prisma.event.deleteMany({});
@@ -37,5 +51,6 @@ async function deleteEvents(req,res){
 
 module.exports = {
     createEvent,
-    deleteEvents
+    deleteEvents,
+    getLastEvent
 }
