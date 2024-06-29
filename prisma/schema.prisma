@@ -23,7 +23,6 @@ model Users {
 model Event {
   sysid       String   @id @default(uuid())
   name        String
-  link        String
+  url         String
   createdDate DateTime @default(now())
-  createdBy   String
 }

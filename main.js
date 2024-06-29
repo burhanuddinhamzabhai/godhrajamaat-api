@@ -29,3 +29,6 @@ app.use("/auth", authRouter);
 
 const userRouter = require("./routes/user.route");
 app.use("/user", userRouter);
+
+const eventRouter = require("./routes/event.route");
+app.use("/event", eventRouter);

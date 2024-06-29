@@ -14,6 +14,17 @@ async function createUser(req,res){
 
 
     try{
+         // Check if the user exists
+         const user = await prisma.users.findUnique({
+            where: {
+                itsId: itsId
+            }
+        });
+
+        if (user) {
+            return res.status(409).send('User already exists');
+        }
+
         const createUser = await prisma.users.createMany({
             data: user,
         });
@@ -30,6 +41,24 @@ async function createUser(req,res){
 async function deleteUser(req,res){
     const { id } = req.params;
     try{
+
+         // Check if the user exists
+         const user = await prisma.users.findUnique({
+            where: {
+                itsId: id
+            }
+        });
+
+        if (user) {
+            if(user.isAdmin){
+                return res.status(409).send('Cannot delete admin user');
+            }
+        }
+
+        if(!user){
+            return res.status(409).send('User not found');
+        }
+
         const deleteUser = await prisma.users.delete({
             where: {
                 itsId: id
