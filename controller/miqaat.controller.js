@@ -136,7 +136,9 @@ async function getActiveMiqaatUsers(req, res) {
     });
 
     const activeUsers = await prisma.activeMiqaatUsers.findMany({
-      take: 20,
+      select:{
+        name:true, itsId:true, loggedInAt:true
+      },
       where: {
         miqaatId: lastMiqaat.sysid,
       },
@@ -145,7 +147,7 @@ async function getActiveMiqaatUsers(req, res) {
       },
     });
 
-    return res.status(200).send(activeUsers);
+    return res.status(200).send({miqaatName:lastMiqaat.name, users:activeUsers});
   } catch (e) {
     console.log(e);
     return res
@@ -196,6 +198,36 @@ async function findActiveUser(req, res) {
   }
 }
 
+async function getFewActiveMiqaatUsers(req,res){
+  try {
+    const lastMiqaat = await prisma.miqaat.findFirst({
+      where: {
+        closed: false,
+      },
+      orderBy: {
+        createdDate: "desc",
+      },
+    });
+
+    const activeUsers = await prisma.activeMiqaatUsers.findMany({
+      take: 20,
+      where: {
+        miqaatId: lastMiqaat.sysid,
+      },
+      orderBy: {
+        loggedInAt: "desc",
+      },
+    });
+
+    return res.status(200).send(activeUsers);
+  } catch (e) {
+    console.log(e);
+    return res
+      .status(500)
+      .send({ message: "Internal server error: " + e.message });
+  }
+}
+
 module.exports = {
   createMiqaat,
   getLastMiqaat,
@@ -204,4 +236,5 @@ module.exports = {
   getActiveMiqaatUsers,
   deleteSession,
   findActiveUser,
+  getFewActiveMiqaatUsers
 };

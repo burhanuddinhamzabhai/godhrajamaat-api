@@ -1,4 +1,7 @@
 const express = require("express");
+const createCsvWriter = require('csv-writer').createObjectCsvWriter;
+const fs = require('fs');
+const path = require('path');
 const app = express();
 app.use(express.json());
 
@@ -24,7 +27,7 @@ app.get("/last", async (req, res) => {
 
 app.get("/activeMiqaatUsers", async (req, res) => {
   try {
-    await controller.getActiveMiqaatUsers(req, res);
+    await controller.getFewActiveMiqaatUsers(req, res);
   } catch (err) {
     console.log(err);
     return res.status(500).send({ message: "Internal server error" });
@@ -67,5 +70,17 @@ app.put("/close", async (req, res) => {
   }
 }
 );
+
+app.get("/export", async (req, res) => {
+  try {
+   await controller.getActiveMiqaatUsers(req, res);
+  } catch (err) {
+    console.log(err);
+    return res.status(500).send({ message: "Internal server error" });
+  }
+}
+);
+
+
 
 module.exports = app;
