@@ -22,10 +22,37 @@ app.get("/last", async (req, res) => {
   }
 });
 
+app.get("/activeMiqaatUsers", async (req, res) => {
+  try {
+    await controller.getActiveMiqaatUsers(req, res);
+  } catch (err) {
+    console.log(err);
+    return res.status(500).send({ message: "Internal server error" });
+  }
+});
+
 app.delete("/delete", async (req, res) => {
   try {
     await controller.deleteMiqaats(req, res);
   } catch (err) {
+    console.log(err);
+    return res.status(500).send({ message: "Internal server error" });
+  }
+});
+
+app.post("/deleteSession",async (req,res)=>{
+  try{
+    await controller.deleteSession(req,res);
+  }catch(err){
+    console.log(err);
+    return res.status(500).send({ message: "Internal server error" });
+  }
+});
+
+app.get("/findActiveUser",async (req,res)=>{
+  try{
+    await controller.findActiveUser(req,res);
+  }catch(err){
     console.log(err);
     return res.status(500).send({ message: "Internal server error" });
   }
