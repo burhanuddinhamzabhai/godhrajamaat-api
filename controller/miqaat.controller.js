@@ -74,7 +74,10 @@ async function getLastMiqaat(req, res) {
 
 async function deleteMiqaats(req, res) {
   try {
-    await prisma.miqaat.deleteMany({
+    await prisma.miqaat.updateMany({
+      data:{
+        closed:true
+      },
       where: {
         name: {
           not: "DEFAULT",
@@ -82,7 +85,11 @@ async function deleteMiqaats(req, res) {
       },
     });
 
-    await prisma.activeMiqaatUsers.deleteMany();
+    await prisma.activeMiqaatUsers.updateMany({
+      data: {
+        active: false,
+      },
+    });
 
     return res.status(200).send({ message: "Miqaats deleted" });
   } catch (e) {
