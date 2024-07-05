@@ -44,4 +44,31 @@ app.post("/createBulk",async (req,res) =>{
   }
 });
 
+app.get("/all",async (req,res)=>{
+  try{
+    await controller.getAllUsers(req,res);
+  }catch(err){
+    console.log(err);
+    return res.status(500).send({ message: "Internal server error" });
+  }
+});
+
+app.get("/findUser",async(req,res)=>{
+  try{
+    await controller.findUser(req,res);
+  }catch(err){
+    console.log(err);
+    return res.status(500).send({ message: "Internal server error" });
+  }
+})
+
+app.get("/export",async (req,res)=>{
+  try{
+    await controller.exportUsers(req,res);
+  }catch(err){
+    console.log(err);
+    return res.status(500).send({ message: "Internal server error" });
+  }
+})
+
 module.exports = app;

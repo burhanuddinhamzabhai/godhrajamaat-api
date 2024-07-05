@@ -6,6 +6,8 @@ const app = express();
 app.use(express.json());
 
 const controller = require("../controller/miqaat.controller");
+const verifyToken = require("../middleware/authMiddleware");
+app.use(verifyToken);
 
 app.post("/create", async (req, res) => {
   try {
@@ -61,7 +63,7 @@ app.get("/findActiveUser",async (req,res)=>{
   }
 });
 
-app.put("/close", async (req, res) => {
+app.delete("/close", async (req, res) => {
   try {
     await controller.closeMiqaat(req, res);
   } catch (err) {
@@ -81,6 +83,33 @@ app.get("/export", async (req, res) => {
 }
 );
 
+app.get("/exportMiqaat", async (req, res) => {
+  try {
+   await controller.getThisMiqaatUsers(req, res);
+  } catch (err) {
+    console.log(err);
+    return res.status(500).send({ message: "Internal server error" });
+  }
+}
+);
+
+app.get("/all",async (req,res)=>{
+  try{
+    await controller.getAllMiqaats(req,res);
+  }catch(err){
+    console.log(err);
+    return res.status(500).send({ message: "Internal server error" });
+  }
+});
+
+app.get('/findMiqaat', async (req,res)=>{
+  try{
+    await controller.findMiqaat(req,res);
+  }catch(err){
+    console.log(err);
+    return res.status(500).send({ message: "Internal server error" });
+  }
+});
 
 
 module.exports = app;

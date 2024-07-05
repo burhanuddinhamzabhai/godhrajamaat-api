@@ -20,11 +20,13 @@ async function seedInit(){
 
 
     try{
+        await prisma.users.deleteMany({});
         const createUsers = await prisma.users.createMany({
             data: users,
         });
         console.log(createUsers);
-
+        
+        await prisma.miqaat.deleteMany({});
         const createMiqaat = await prisma.miqaat.createMany({
             data: miqaat,
         });

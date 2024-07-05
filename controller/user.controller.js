@@ -7,7 +7,7 @@ const seed = require("./seed.controller");
 
 async function createUser(req, res) {
   const { itsId, name } = req.body;
-  const user = [
+  const userData = [
     {
       name: name,
       itsId: itsId,
@@ -19,9 +19,12 @@ async function createUser(req, res) {
 
   try {
     // Check if the user exists
-    const user = await prisma.users.findUnique({
+    const user = await prisma.users.findFirst({
       where: {
-        itsId: itsId,
+        AND:[
+          {itsId:itsId},
+          {freezed:false}
+        ]
       },
     });
 
@@ -30,9 +33,8 @@ async function createUser(req, res) {
     }
 
     const createUser = await prisma.users.createMany({
-      data: user,
+      data: userData,
     });
-    console.log(createUser);
     return res.status(201).send({ message: "User created" });
   } catch (e) {
     console.log(e);
@@ -44,8 +46,18 @@ async function createUser(req, res) {
 
 async function getAllUsers(req, res) {
   try {
-    const users = await prisma.users.findMany();
-    return res.status(200).send(users);
+    const users = await prisma.users.findMany({
+      take:20,
+      where:{
+        freezed:false
+      }
+    });
+    const count = await prisma.users.count({
+      where:{
+        freezed:false
+      }
+    });
+    return res.status(200).send({users:users,count:count});
   } catch (e) {
     console.log(e);
     return res
@@ -74,12 +86,14 @@ async function deleteUser(req, res) {
       return res.status(409).send("User not found");
     }
 
-    const deleteUser = await prisma.users.delete({
+    const deleteUser = await prisma.users.update({
       where: {
         itsId: id,
       },
+      data:{
+        freezed:true
+      }
     });
-    console.log(deleteUser);
     return res.status(200).send({ message: "User deleted" });
   } catch (e) {
     console.log(e);
@@ -91,8 +105,15 @@ async function deleteUser(req, res) {
 
 async function deleteUsers(req, res) {
   try {
-    await prisma.users.deleteMany({});
-    await seed.seedUsers();
+    await prisma.users.updateMany({
+      data:{
+        freezed:true
+      },
+      where:{
+        freezed:false
+      }
+    });
+    await seed.seedInit();
     return res.status(200).send({ message: "Users deleted" });
   } catch (e) {
     console.log(e);
@@ -109,7 +130,10 @@ async function createBulkUsers(req, res) {
       for (const user of users) {
         const { name, itsId } = user;
         await prisma.users.upsert({
-            where: { itsId },
+            where: { AND:[
+              {itsId:itsId},
+              {freezed:false}
+            ] },
             update: { name, password: itsId,passwordSalt: await bcrypt.hash(itsId, 10)},
             create: {
               name,
@@ -126,10 +150,57 @@ async function createBulkUsers(req, res) {
   }
 }
 
+async function findUser(req,res){
+  const { filterExpression } = req.query;
+  try {
+    const activeUser = await prisma.users.findMany({
+      where: {
+        OR: [
+          { itsId: { contains: filterExpression } },
+          { name: { contains: filterExpression } },
+        ],
+        AND:[
+          {freezed:false}
+        ]
+      },
+    });
+    return res.status(200).send(activeUser);
+  } catch (e) {
+    console.log(e);
+    return res
+      .status(500)
+      .send({ message: "Internal server error: " + e.message });
+  }
+}
+
+async function exportUsers(req,res){
+  try {
+    const users = await prisma.users.findMany({
+      where:{
+        freezed:false
+      }
+    });
+    const data = users.map(user => {
+      return {
+        itsId: user.itsId,
+        name: user.name
+      }
+    });
+    
+    return res.status(200).send(data);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("An error occurred while exporting the file");
+  }
+
+}
+
 module.exports = {
   createUser,
   getAllUsers,
   deleteUser,
   deleteUsers,
   createBulkUsers,
+  findUser,
+  exportUsers
 };
